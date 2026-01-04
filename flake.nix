@@ -17,6 +17,7 @@
         ./flake-modules/obs.nix
         ./flake-modules/reaper.nix
         ./flake-modules/devshells.nix
+        ./flake-modules/reaper-drivenbymoss.nix
       ];
       flake = {
         # Put your original flake attributes here.
