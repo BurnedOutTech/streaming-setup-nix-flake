@@ -2,7 +2,7 @@
   description = "OBS + Reaper streaming setup using flake.parts";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/146b74e1d3917da07c69c8a26cf8a4323b5bd900";
+    nixpkgs.url = "github:nixos/nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
   };
