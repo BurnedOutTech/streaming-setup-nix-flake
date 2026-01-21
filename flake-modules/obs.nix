@@ -14,11 +14,23 @@
           obs-advanced-masks
           #obs-vertical-canvas
           obs-gstreamer                                                                     
+          obs-vnc
           obs-vkcapture
           droidcam-obs
           obs-source-record
-          advanced-scene-switcher    # Temporarily disabled - build issue with CUDA toolkit
+          advanced-scene-switcher    
           obs-text-pthread
+      ];
+
+      obsDependencies = with pkgs; [
+        android-tools
+        usbmuxd 
+        cowsay
+      ];
+
+      obsPackages = [
+        obsPlugins
+        obsDependencies
       ];
       
       # Create a wrapOBS function with CUDA obs-studio
@@ -28,16 +40,13 @@
     in
     {
       packages = {
-        obs-streaming = pkgs.wrapOBS {
-          plugins = obsPlugins;
+        obs = pkgs.wrapOBS {
+          plugins = obsPackages;
         };
 
-        obs-streaming-cuda = wrapOBSWithCuda {
-          plugins = obsPlugins;
+        obs-cuda = wrapOBSWithCuda {
+          plugins = obsPackages;
         };
-
-        obs = self'.packages.obs-streaming;
-        obs-cuda = self'.packages.obs-streaming-cuda;
       };
     };
 }
