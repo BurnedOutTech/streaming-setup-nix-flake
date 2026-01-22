@@ -13,6 +13,7 @@
       modules = [
         ./flake-modules/obs.nix
         ./flake-modules/reaper.nix
+        ./flake-modules/pipewire.nix
         ./flake-modules/devshells.nix
         ./flake-modules/reaper-drivenbymoss.nix
       ];
@@ -31,6 +32,9 @@
             imports = modules;
           };
         };
+         # Export the actual module for your main config
+        # nixosModules.pipewire =
+        #   (import ./flake-modules/pipewire.nix inputs).flake.nixosModules.audio;
       };
       systems = [
         # systems for which you want to build the `perSystem` attributes

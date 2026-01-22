@@ -13,8 +13,6 @@
         buildInputs = [
           self'.packages.obs-cuda
           self'.packages.reaper
-          self'.packages.audio-tools
-          #self'.packages.yabridge-tools
           pkgs.ffmpeg
           pkgs.sox
         ];

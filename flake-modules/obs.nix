@@ -9,7 +9,6 @@
           # obs-backgroundremoval       # ML background removal
           obs-source-switcher         # Scene automation
 
-          # validate ones below
           input-overlay
           obs-advanced-masks
           #obs-vertical-canvas
@@ -25,7 +24,6 @@
       obsDependencies = with pkgs; [
         android-tools
         usbmuxd 
-        cowsay
       ];
 
       obsPackages = [

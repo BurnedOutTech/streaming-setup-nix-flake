@@ -1,36 +1,46 @@
 # flake-modules/reaper.nix
 { inputs, ... }:
 {
-  perSystem = { pkgs, self', system, ... }: {
+  perSystem = { pkgs, self', system, ... }: 
+  let
+    # Import nixpkgs with allowUnfree for Reaper
+    unfree-pkgs = import inputs.nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+    };
+  in
+  {
     packages = {
-      reaper = 
-        let
-          # Import nixpkgs with allowUnfree for just this package
-          unfree-pkgs = import inputs.nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        in
-        unfree-pkgs.reaper;
-
-      audio-tools = pkgs.buildEnv {
-        name = "audio-tools";
+      reaper = pkgs.buildEnv {
+        name = "reaper-suite";
         paths = [
-          pkgs.jack2
-          pkgs.pipewire
-          pkgs.pavucontrol
-          pkgs.qpwgraph
-          pkgs.alsa-utils
+          unfree-pkgs.reaper
+          
+          # VST bridges for Windows plugins
+          pkgs.yabridge
+          pkgs.yabridgectl
+          pkgs.wineWowPackages.yabridge
+          
+          # Synths and instruments
+          #pkgs.vital
+          pkgs.surge-XT
+          pkgs.geonkick
+          pkgs.cardinal
+          
+          # Audio effects
+          pkgs.calf
+          pkgs.lsp-plugins
+          pkgs.neural-amp-modeler-lv2
+          
+          # MIDI tools
+          pkgs.qsynth
+          pkgs.fluidsynth
+          pkgs.soundfont-fluid
+          
+          # Utilities
+          pkgs.audacity
         ];
       };
-
-      # yabridge-tools = pkgs.buildEnv {
-      #   name = "yabridge-tools";
-      #   paths = [
-      #     pkgs.yabridge
-      #     pkgs.wineWowPackages.yabridge
-      #   ];
-      # };
     };
   };
 }
