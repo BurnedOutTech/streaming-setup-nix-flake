@@ -1,40 +1,68 @@
 { ... }:
 {
-  perSystem = { pkgs, self', ... }: {
-    packages = {
-      drivenbymoss-reaper = pkgs.stdenv.mkDerivation {
-       pname = "drivenbymoss-reaper";
+  perSystem = { inputs, system, config, pkgs, lib, ... }: 
+  let
+    # Import nixpkgs with allowUnfree for Reaper
+    unfree-pkgs = import inputs.nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+    };
+  in
+  {
+    packages = rec {
+      
+      # 1. The Plugin Package (Adapted for "Portable" structure)
+      drivenbymoss-reaper = pkgs.stdenv.mkDerivation rec {
+        pname = "drivenbymoss-reaper";
         version = "26.5.1";
 
         src = pkgs.fetchurl {
-          url = "https://www.mossgrabers.de/Software/Reaper/DrivenByMoss4Reaper-26.5.1-Linux.tar.gz";
+          url = "https://www.mossgrabers.de/Software/Reaper/DrivenByMoss4Reaper-${version}-Linux.tar.gz";
           sha256 = "sha256-vqC5E6j/7t4pcsn/qegfR38m352rfxtrlwOBh8OI4SI=";
         };
 
-        nativeBuildInputs = [ pkgs.patchelf ];
+        nativeBuildInputs = [ pkgs.autoPatchelfHook pkgs.patchelf ];
+        
+        # Dependencies for the bundled Java runtime
+        buildInputs = with pkgs; [
+          #alsa-lib freetype libX11 libXext libXi libXrender libXtst stdenv.cc.cc.lib
+          alsa-lib freetype stdenv.cc.cc.lib
+        ];
 
-        unpackPhase = ''tar -xzf $src'';
+        dontUnpack = true;
 
+        # Install strictly into UserPlugins to allow easy injection later
         installPhase = ''
-          mkdir -p $out/lib/reaper
-
-          # Copy everything
-          cp reaper_drivenbymoss.so $out/lib/reaper/
-          cp -r drivenbymoss-libs $out/lib/reaper/
-          cp -r java-runtime $out/lib/reaper/
-          cp -r resources $out/lib/reaper/
-
-          # Patchelf to find bundled runtime
-          patchelf \
-            --set-rpath "$out/lib/reaper/java-runtime/lib:$out/lib/reaper/java-runtime/lib/server:$out/lib/reaper" \
-            $out/lib/reaper/reaper_drivenbymoss.so
+          mkdir -p $out/UserPlugins
+          tar -xzf $src -C $out/UserPlugins
         '';
 
-        meta = {
-          description = "DrivenByMoss 4 Reaper Extension";
-          platforms = [ "x86_64-linux" ];
-        };
+        # Fix RPATH so the plugin finds its sibling Java runtime
+        postFixup = ''
+          patchelf --add-rpath "$out/UserPlugins/java-runtime/lib:$out/UserPlugins/java-runtime/lib/server" \
+            $out/UserPlugins/reaper_drivenbymoss.so
+        '';
       };
+
+      # 2. The Reaper Wrapper
+      # This takes the base Reaper package and injects your plugins into its install dir
+      reaper-wrapped = let 
+        # Define which plugins you want to inject here
+        myReaperPlugins = [ drivenbymoss-reaper ]; 
+      in unfree-pkgs.reaper.overrideAttrs (old: {
+        # NixOS Reaper installs to $out/opt/REAPER
+        # We append a copy command to the install phase
+        postInstall = (old.postInstall or "") + ''
+          mkdir -p $out/opt/REAPER/UserPlugins
+          
+          ${lib.concatMapStrings (plugin: ''
+            echo "Injecting plugin: ${plugin.name}"
+            # Copy the contents of the plugin's UserPlugins folder into Reaper's
+            cp -rn ${plugin}/UserPlugins/* $out/opt/REAPER/UserPlugins/
+          '') myReaperPlugins}
+        '';
+      });
+      
     };
   };
 }

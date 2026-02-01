@@ -25,16 +25,13 @@
         # Expose flake modules to be used by other flakes
         flakeModules = {
           obs = ./flake-modules/obs.nix;
-          reaper = ./flake-modules/reaper.nix;
+          #reaper = ./flake-modules/reaper.nix;
           reaper-drivenbymoss = ./flake-modules/reaper-drivenbymoss.nix;
           devshells = ./flake-modules/devshells.nix;
           default = {
             imports = modules;
           };
         };
-         # Export the actual module for your main config
-        # nixosModules.pipewire =
-        #   (import ./flake-modules/pipewire.nix inputs).flake.nixosModules.audio;
       };
       systems = [
         # systems for which you want to build the `perSystem` attributes
