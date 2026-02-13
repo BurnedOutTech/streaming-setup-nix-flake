@@ -1,6 +1,6 @@
-{ inputs, ... }:
+{ ... }:
 {
-  perSystem = { system, config, pkgs, lib, ... }: 
+  perSystem = { inputs, system, config, pkgs, lib, ... }: 
   let
     # Import nixpkgs with allowUnfree for Reaper
     unfree-pkgs = import inputs.nixpkgs {
@@ -25,14 +25,8 @@
         
         # Dependencies for the bundled Java runtime
         buildInputs = with pkgs; [
-          alsa-lib 
-          freetype 
-          xorg.libX11 
-          xorg.libXext 
-          xorg.libXi 
-          xorg.libXrender 
-          xorg.libXtst 
-          stdenv.cc.cc.lib
+          #alsa-lib freetype libX11 libXext libXi libXrender libXtst stdenv.cc.cc.lib
+          alsa-lib freetype stdenv.cc.cc.lib
         ];
 
         dontUnpack = true;
