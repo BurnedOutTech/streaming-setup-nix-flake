@@ -67,7 +67,7 @@
 
         postBuild = ''
           wrapProgram $out/bin/reaper \
-            --set PIPEWIRE_LATENCY "128/48000" \
+            --set PIPEWIRE_LATENCY "256/48000" \
             --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath (plugin-deps ++ runtime-libs)}"
         '';
       };
