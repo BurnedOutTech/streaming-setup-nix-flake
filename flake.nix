@@ -16,6 +16,7 @@
         ./flake-modules/pipewire.nix
         ./flake-modules/devshells.nix
         ./flake-modules/reaper-drivenbymoss.nix
+        ./flake-modules/tests.nix
       ];
     in
       # https://flake.parts/module-arguments.html
@@ -28,6 +29,7 @@
           reaper = ./flake-modules/reaper.nix;
           reaper-drivenbymoss = ./flake-modules/reaper-drivenbymoss.nix;
           devshells = ./flake-modules/devshells.nix;
+          tests = ./flake-modules/tests.nix;
           default = {
             imports = modules;
           };
