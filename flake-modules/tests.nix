@@ -16,6 +16,7 @@
           machine.wait_for_unit("multi-user.target")
           machine.succeed("obs --version")
           machine.succeed("reaper --help >/tmp/reaper-help.log 2>&1 || reaper -h >/tmp/reaper-help.log 2>&1")
+          machine.succeed("test -s /tmp/reaper-help.log")
         '';
       };
     };
