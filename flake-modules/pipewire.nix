@@ -24,8 +24,8 @@
         qpwgraph
         alsa-utils
         pulseaudio
-        yabridge
-        wineWowPackages.yabridge
+        #yabridge
+        #wineWowPackages.yabridge
         cowsay
       ];
     };
