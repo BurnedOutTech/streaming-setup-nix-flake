@@ -25,8 +25,8 @@
         
         # Dependencies for the bundled Java runtime
         buildInputs = with pkgs; [
-          #alsa-lib freetype libX11 libXext libXi libXrender libXtst stdenv.cc.cc.lib
           alsa-lib freetype stdenv.cc.cc.lib
+          libX11 libXext libXi libXrender libXtst
         ];
 
         dontUnpack = true;

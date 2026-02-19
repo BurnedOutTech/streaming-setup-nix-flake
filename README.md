@@ -88,4 +88,5 @@ inputs.streaming-setup.flakeModules.default  # everything
 ```bash
 nix flake update
 ```
+
 > **Note:** Only `x86_64-linux` is supported. Unfree packages (`reaper`, `vcv-rack`) are handled inside individual modules via a scoped `allowUnfree` nixpkgs instance — the top-level flake does not set it globally.
