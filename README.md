@@ -73,4 +73,12 @@ inputs.streaming-setup.flakeModules.default  # everything
 nix flake update
 ```
 
+## Versioning and releases
+
+This repository uses [Conventional Commits](https://www.conventionalcommits.org/) with automated releases:
+
+- Pull requests are checked to ensure PR titles follow conventional format (for example: `feat: add obs plugin`, `fix: correct reaper wrapper`).
+- On every push to `master`, Release Please analyzes merged commits and opens/updates a release PR with the next semantic version and changelog.
+- When that release PR is merged, a Git tag and GitHub release are created automatically.
+
 > **Note:** Only `x86_64-linux` is supported. Unfree packages (`reaper`, `vcv-rack`) are handled inside individual modules via a scoped `allowUnfree` nixpkgs instance — the top-level flake does not set it globally.
