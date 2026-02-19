@@ -39,6 +39,11 @@ Both `reaper.nix` and `reaper-drivenbymoss.nix` instantiate a second nixpkgs wit
 
 `flake.nix` re-exposes every module under `flake.flakeModules.*` so downstream flakes can do `inputs.streaming-setup.flakeModules.obs` to pull in only OBS.
 
+## Agent Rules
+
+- **Always `git add` new files before running `nix build`** — untracked files are invisible to Nix flakes and will produce a "path does not exist" error.
+- **Always test `nix build .#<package>` before presenting a new or modified package to the user.** Fix any build errors before reporting success.
+
 ## Key Conventions
 
 - `self'.packages.<name>` is used inside `perSystem` to reference sibling packages (e.g., `devshells.nix` references `self'.packages.obs-cuda`).

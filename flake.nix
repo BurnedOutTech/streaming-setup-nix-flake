@@ -18,6 +18,7 @@
         ./flake-modules/reaper-drivenbymoss.nix
         ./flake-modules/tests.nix
         ./flake-modules/yt-dl/yt-dl.nix
+        ./flake-modules/multimedia-tools.nix
       ];
     in
       # https://flake.parts/module-arguments.html
@@ -32,6 +33,7 @@
           devshells = ./flake-modules/devshells.nix;
           tests = ./flake-modules/tests.nix;
           yt-dl = ./flake-modules/yt-dl.nix;
+          multimedia-tools = ./flake-modules/multimedia-tools.nix;
           default = {
             imports = modules;
           };

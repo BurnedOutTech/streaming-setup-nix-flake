@@ -12,6 +12,7 @@ A Nix flake ([flake-parts](https://flake.parts)) that packages OBS, Reaper, and 
 | `reaper-wrapped` | Reaper with DrivenByMoss MIDI controller plugin injected |
 | `drivenbymoss-reaper` | DrivenByMoss plugin package (standalone) |
 | `yt-dl` | CLI wrapper: downloads via `yt-dlp` → transcodes to DaVinci Resolve-compatible DNxHR/PCM `.mov` |
+| `multimedia-tools` | Collection of multimedia utilities: Metadata Cleaner, Font Manager, Eyedropper, Upscaler, Curtail, Inkscape, EasyEffects, Helvum, Carla, Zrythm, MIDI Monitor (kmidimon), Handbrake, Kdenlive, VLC, Peek |
 
 ## OBS Plugins included
 
@@ -62,6 +63,7 @@ Every module is re-exported under `flakeModules.*`:
 inputs.streaming-setup.flakeModules.obs      # OBS only
 inputs.streaming-setup.flakeModules.reaper   # Reaper only
 inputs.streaming-setup.flakeModules.yt-dl    # yt-dl only
+inputs.streaming-setup.flakeModules.multimedia-tools  # multimedia utilities
 inputs.streaming-setup.flakeModules.default  # everything
 ```
 
