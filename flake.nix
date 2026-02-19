@@ -17,6 +17,7 @@
         ./flake-modules/devshells.nix
         ./flake-modules/reaper-drivenbymoss.nix
         ./flake-modules/tests.nix
+        ./flake-modules/yt-dl/yt-dl.nix
       ];
     in
       # https://flake.parts/module-arguments.html
@@ -30,13 +31,13 @@
           reaper-drivenbymoss = ./flake-modules/reaper-drivenbymoss.nix;
           devshells = ./flake-modules/devshells.nix;
           tests = ./flake-modules/tests.nix;
+          yt-dl = ./flake-modules/yt-dl.nix;
           default = {
             imports = modules;
           };
         };
       };
       systems = [
-        # systems for which you want to build the `perSystem` attributes
         "x86_64-linux"
       ];
     };
