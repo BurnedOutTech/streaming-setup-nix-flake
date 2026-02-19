@@ -1,5 +1,16 @@
 { ... }:
+let
+  patchedRaysession = pkgs: pkgs.raysession.overrideAttrs (old: {
+    postPatch = (old.postPatch or "") + ''
+      sed -i '/from cgitb import text/d' src/gui/patchbay/patchcanvas/portgroup_widget.py
+    '';
+  });
+in
 {
+  perSystem = { pkgs, ... }: {
+    packages.raysession = patchedRaysession pkgs;
+  };
+
   flake.nixosModules.pipewire = { config, lib, pkgs, ... }: {
     config = {
       services.pipewire = {
@@ -23,10 +34,7 @@
         pavucontrol
         qpwgraph
         alsa-utils
-        pulseaudio
-        #yabridge
-        #wineWowPackages.yabridge
-        cowsay
+        (patchedRaysession pkgs)
       ];
     };
   };
