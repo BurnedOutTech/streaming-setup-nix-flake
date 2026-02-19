@@ -46,6 +46,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name')
           # Check if a PR for this branch already exists
           PR=$(gh pr list --head flake-update --json number --jq '.[0].number')
           if [ -n "$PR" ]; then
@@ -57,7 +58,7 @@ jobs:
             echo "Creating new PR"
             gh pr create \
               --head flake-update \
-              --base master \
+              --base "$DEFAULT_BRANCH" \
               --title "chore: nix flake update $(date +%Y-%m-%d)" \
               --body "Automated \`nix flake update\` — CI will build all packages and run tests."
           fi
