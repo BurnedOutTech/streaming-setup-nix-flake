@@ -2,6 +2,22 @@
 
 A Nix flake ([flake-parts](https://flake.parts)) that packages OBS, Reaper, and related audio/streaming tools for `x86_64-linux`. Each module is also re-exported so other flakes can import only what they need.
 
+## Binary cache
+
+Packages are built on CI and pushed to Cachix. Add the cache to avoid rebuilding locally:
+
+```bash
+cachix use burnedouttech
+```
+
+Or in your NixOS config:
+```nix
+nix.settings = {
+  substituters = [ "https://burnedouttech.cachix.org" ];
+  trusted-public-keys = [ "burnedouttech.cachix.org-1:..." ]; # fill in from cachix dashboard
+};
+```
+
 ## Packages
 
 | Package | Description |
