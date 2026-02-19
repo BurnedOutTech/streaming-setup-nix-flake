@@ -3,7 +3,7 @@ name: Release Please
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -15,8 +15,8 @@ jobs:
       issues: write
     steps:
       - name: Create release PR / tag release
-        uses: google-github-actions/release-please-action@v4
+        uses: googleapis/release-please-action@v4
         with:
-          release-type: simple
-          package-name: streaming-setup-nix-flake
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
           skip-github-pull-request: true
