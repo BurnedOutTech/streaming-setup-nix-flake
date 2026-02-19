@@ -23,10 +23,7 @@
         pavucontrol
         qpwgraph
         alsa-utils
-        pulseaudio
-        #yabridge
-        #wineWowPackages.yabridge
-        cowsay
+        raysession
       ];
     };
   };

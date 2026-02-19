@@ -16,7 +16,6 @@
         easyeffects               # Audio effects for PipeWire
         helvum                    # PipeWire patchbay
         carla                     # Audio plugin host
-        raysession
         zrythm                    # Digital audio workstation
         kmidimon                  # MIDI monitor (Drumstick)
 
