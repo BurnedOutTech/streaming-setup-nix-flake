@@ -17,11 +17,11 @@
       # VST bridges for Windows plugins
       pkgs.yabridge
       pkgs.yabridgectl
-      pkgs.wineWowPackages.yabridge
+      pkgs.wineWow64Packages.yabridge
       
       # Synths and instruments
       #pkgs.vital
-      pkgs.surge-XT
+      pkgs.surge-xt
       pkgs.geonkick
       pkgs.cardinal
       
@@ -44,9 +44,8 @@
     # Runtime libs often needed by plugins
     runtime-libs = with pkgs; [
       libxcb
-      xorg.libxcb
-      xorg.libxkbfile
-      xorg.libX11
+      libxkbfile
+      libx11
       libxkbcommon
       ftgl
       cairo

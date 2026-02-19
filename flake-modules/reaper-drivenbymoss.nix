@@ -1,6 +1,6 @@
-{ ... }:
+{ inputs, ... }:
 {
-  perSystem = { inputs, system, config, pkgs, lib, ... }: 
+  perSystem = { system, config, pkgs, lib, ... }: 
   let
     # Import nixpkgs with allowUnfree for Reaper
     unfree-pkgs = import inputs.nixpkgs {

@@ -25,11 +25,11 @@
       };
 
       obs-only = pkgs.mkShell {
-        buildInputs = [ self'.packages.obs-streaming pkgs.ffmpeg ];
+        buildInputs = [ self'.packages.obs pkgs.ffmpeg ];
       };
 
       reaper-only = pkgs.mkShell {
-        buildInputs = [ self'.packages.reaper self'.packages.audio-tools ];
+        buildInputs = [ self'.packages.reaper ];
       };
     };
   };
