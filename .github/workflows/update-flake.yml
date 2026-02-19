@@ -1,0 +1,63 @@
+name: Update flake inputs
+
+on:
+  schedule:
+    - cron: '0 6 */2 * *'  # every 2 days at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    name: nix flake update
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Update flake inputs
+        run: nix flake update
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet flake.lock; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push update branch
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B flake-update
+          git add flake.lock
+          git commit -m "chore: nix flake update $(date +%Y-%m-%d)"
+          git push origin flake-update --force
+
+      - name: Create or update PR
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check if a PR for this branch already exists
+          PR=$(gh pr list --head flake-update --json number --jq '.[0].number')
+          if [ -n "$PR" ]; then
+            echo "Updating existing PR #$PR"
+            gh pr edit "$PR" \
+              --title "chore: nix flake update $(date +%Y-%m-%d)" \
+              --body "Automated \`nix flake update\` — CI will build all packages and run tests."
+          else
+            echo "Creating new PR"
+            gh pr create \
+              --head flake-update \
+              --base master \
+              --title "chore: nix flake update $(date +%Y-%m-%d)" \
+              --body "Automated \`nix flake update\` — CI will build all packages and run tests."
+          fi
