@@ -1,7 +1,3 @@
-# 
-#  TODO: For obs-websocket-monitor we need to open those ports  
-# sudo iptables -I INPUT -p tcp --dport 4455 -j ACCEPT
-# sudo iptables -I INPUT -p udp --dport 5353 -j ACCEPT
 { ... }:
 {
   perSystem = { pkgs, self', ... }: 
@@ -50,4 +46,12 @@
         };
       };
     };
+
+  # Firewall rules for obs-websocket-monitor
+  flake.nixosModules.obs = { ... }: {
+    config = {
+      networking.firewall.allowedTCPPorts = [ 4455 ];
+      networking.firewall.allowedUDPPorts = [ 5353 ];
+    };
+  };
 }
