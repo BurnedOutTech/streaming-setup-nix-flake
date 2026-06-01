@@ -24,6 +24,7 @@ jobs:
           - reaper
           - drivenbymoss-reaper
           - reaper-wrapped
+          - open-llm-vtuber
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -61,3 +62,27 @@ jobs:
 
       - name: Run VM smoke tests
         run: nix build .#checks.x86_64-linux.vm-smoke --print-build-logs
+
+  open-llm-vtuber-test:
+    name: Open LLM VTuber NixOS test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            extra-system-features = kvm
+
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: burnedouttech
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: Run Open LLM VTuber NixOS VM test
+        run: nix build .#checks.x86_64-linux.open-llm-vtuber-service --print-build-logs
