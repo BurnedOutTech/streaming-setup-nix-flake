@@ -31,6 +31,7 @@
       pkgs.lsp-plugins # needs manual copying
       pkgs.neural-amp-modeler-lv2 # needs manual copying
       pkgs.drumgizmo # needs manual copying
+      pkgs.sfizz #idk how it works
       
       # MIDI tools
       pkgs.qsynth

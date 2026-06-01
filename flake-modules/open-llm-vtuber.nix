@@ -100,6 +100,14 @@
             '';
           });
 
+          # edge-tts 7.0.0 (in uv.lock) gets 403 from Microsoft; 7.2.7 fixes the token.
+          edge-tts = prev.edge-tts.overrideAttrs (_: {
+            src = pkgs.fetchurl {
+              url  = "https://files.pythonhosted.org/packages/bf/89/92ac6b154ab87d236c15e5e0c73cb99be58efb1ea3eb9318c266bf9a36bf/edge_tts-7.2.7-py3-none-any.whl";
+              hash = "sha256-rBHZ6DQ0fl7mLL5y6KVv/WXTxOeVvhSx5ZO3LPZIDdk=";
+            };
+          });
+
           # langdetect and srt have no [build-system] table; need setuptools injected.
           langdetect = prev.langdetect.overrideAttrs (old: {
             nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ final.setuptools ];
@@ -304,6 +312,19 @@
           description = "Open {option}`services.open-llm-vtuber.port` in the firewall.";
         };
 
+        configFile = mkOption {
+          type        = types.nullOr types.path;
+          default     = null;
+          example     = literalExpression "./conf.yaml";
+          description = ''
+            Path to a conf.yaml to use as the service configuration.
+            When set, this file is copied to {option}`dataDir`/conf.yaml on
+            every service start (Nix-managed).  When null (default), conf.yaml
+            is seeded from the package default on the first start only and
+            can be edited in place.
+          '';
+        };
+
         extraEnvironment = mkOption {
           type        = types.attrsOf types.str;
           default     = { };
@@ -329,17 +350,24 @@
           wantedBy    = [ "multi-user.target" ];
           after       = [ "network.target" ];
 
+          # pydub calls ffmpeg/ffprobe at runtime as subprocess
+          path = [ pkgs.ffmpeg ];
+
           # Seed the state directory and maintain store-path symlinks.
           preStart = ''
             # Writable subdirectories
             mkdir -p "${cfg.dataDir}"/{models,cache,logs}
 
-            # Seed conf.yaml from package default on first run
-            if [ ! -f "${cfg.dataDir}/conf.yaml" ]; then
-              install -m 644 \
-                "${shareDir}/conf.default.yaml" \
-                "${cfg.dataDir}/conf.yaml"
-            fi
+            # Seed conf.yaml from package default on first run (or always if configFile is set)
+            ${if cfg.configFile != null then ''
+              install -m 644 "${cfg.configFile}" "${cfg.dataDir}/conf.yaml"
+            '' else ''
+              if [ ! -f "${cfg.dataDir}/conf.yaml" ]; then
+                install -m 644 \
+                  "${shareDir}/conf.default.yaml" \
+                  "${cfg.dataDir}/conf.yaml"
+              fi
+            ''}
 
             # Seed model_dict.json (users may customise this file)
             if [ ! -f "${cfg.dataDir}/model_dict.json" ]; then
@@ -364,6 +392,18 @@
                 ln -s "${shareDir}/${dir}" "${cfg.dataDir}/${dir}"
               fi
             '') readOnlyDirs}
+
+            # Download sherpa-onnx piper TTS model on first run if not present.
+            if [ ! -d "${cfg.dataDir}/models/tts/sherpa-onnx-tts" ]; then
+              mkdir -p "${cfg.dataDir}/models/tts"
+              echo "Downloading sherpa-onnx piper TTS model..."
+              ${pkgs.curl}/bin/curl -L \
+                "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_US-lessac-medium.tar.bz2" \
+                | ${pkgs.bzip2}/bin/bunzip2 \
+                | ${pkgs.gnutar}/bin/tar -xf - -C "${cfg.dataDir}/models/tts/"
+              mv "${cfg.dataDir}/models/tts/vits-piper-en_US-lessac-medium" \
+                 "${cfg.dataDir}/models/tts/sherpa-onnx-tts"
+            fi
           '';
 
           serviceConfig = {
@@ -378,6 +418,8 @@
             Environment = mapAttrsToList (k: v: "${k}=${v}") ({
               HF_HOME          = "${cfg.dataDir}/models";
               MODELSCOPE_CACHE = "${cfg.dataDir}/models";
+              # soundfile uses ctypes dlopen fallback which respects LD_LIBRARY_PATH
+              LD_LIBRARY_PATH  = "${pkgs.libsndfile.out}/lib";
             } // cfg.extraEnvironment);
 
             Restart    = "on-failure";
