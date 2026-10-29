@@ -8,6 +8,16 @@
       inherit system;
       config.allowUnfree = true;
     };
+
+    reaper-patched = unfree-pkgs.reaper.overrideAttrs (old: {
+      # Reaper uses 2 MiB-aligned ELF segments; the default page size causes
+      # autoPatchelfHook to create overlapping mappings and crash at startup.
+      # Remove this once nixpkgs preserves Reaper's native page alignment.
+      patchelfFlags = (old.patchelfFlags or []) ++ [
+        "--page-size"
+        "2097152"
+      ];
+    });
     
     # Define dependencies list to use in both paths and library path
     # (Removed libraries that are usually implicitly handled or should be in LD_LIBRARY_PATH)
@@ -31,6 +41,7 @@
       pkgs.lsp-plugins # needs manual copying
       pkgs.neural-amp-modeler-lv2 # needs manual copying
       pkgs.drumgizmo # needs manual copying
+      pkgs.sfizz #idk how it works
       
       # MIDI tools
       pkgs.qsynth
@@ -60,7 +71,7 @@
     packages = {
       reaper = pkgs.symlinkJoin {
         name = "reaper-suite";
-        paths = [ unfree-pkgs.reaper ] ++ plugin-deps ++ runtime-libs;
+        paths = [ reaper-patched ] ++ plugin-deps ++ runtime-libs;
         
         nativeBuildInputs = [ pkgs.makeWrapper ];
 

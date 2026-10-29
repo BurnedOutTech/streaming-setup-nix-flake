@@ -29,6 +29,7 @@ nix.settings = {
 | `drivenbymoss-reaper` | DrivenByMoss plugin package (standalone) |
 | `yt-dl` | CLI wrapper: downloads via `yt-dlp` → transcodes to DaVinci Resolve-compatible DNxHR/PCM `.mov` |
 | `multimedia-tools` | Collection of multimedia utilities: Metadata Cleaner, Font Manager, Eyedropper, Upscaler, Curtail, Inkscape, EasyEffects, Helvum, Carla, Zrythm, MIDI Monitor (kmidimon), Handbrake, Kdenlive, VLC, Peek |
+| `open-llm-vtuber` | Open LLM VTuber server — voice LLM chat with Live2D avatar, served on port 12393 |
 
 ## OBS Plugins included
 
@@ -46,6 +47,7 @@ nix build .#obs-cuda      # OBS with CUDA
 nix build .#reaper        # Reaper suite
 nix build .#reaper-wrapped  # Reaper with DrivenByMoss injected
 nix build .#yt-dl         # yt-dl helper
+nix build .#open-llm-vtuber  # Open LLM VTuber server
 ```
 
 ## Dev Shell
@@ -62,25 +64,52 @@ Downloads a URL via `yt-dlp` and transcodes to DNxHR LB / PCM audio `.mov` for D
 yt-dl <url>
 ```
 
-## NixOS Module
+## NixOS Modules
+
+### PipeWire
 
 A PipeWire NixOS module is available at `nixosModules.pipewire`. It enables ALSA, PulseAudio, and JACK compatibility, sets low-latency clock rates (32–2048 quantum, 44100/48000 Hz), and installs common audio utilities.
 
 ```nix
-# In your NixOS configuration:
 imports = [ inputs.streaming-setup.nixosModules.pipewire ];
 ```
+
+### Open LLM VTuber
+
+A systemd service module for the Open LLM VTuber server is available at `nixosModules.open-llm-vtuber`. The service:
+
+- Runs as a dedicated system user
+- Stores mutable state (conf.yaml, model cache, logs) in `/var/lib/open-llm-vtuber`
+- Symlinks read-only assets (frontend, live2d-models, backgrounds, …) from the Nix store and updates them automatically on package upgrades
+
+```nix
+imports = [ inputs.streaming-setup.nixosModules.open-llm-vtuber ];
+
+services.open-llm-vtuber = {
+  enable  = true;
+  package = inputs.streaming-setup.packages.x86_64-linux.open-llm-vtuber;
+  # host = "0.0.0.0";   # expose to LAN
+  # port = 12393;
+  # openFirewall = true;
+  extraEnvironment = {
+    OLLAMA_HOST = "http://127.0.0.1:11434";
+  };
+};
+```
+
+The server is reachable at `http://localhost:12393` after activation. Edit `/var/lib/open-llm-vtuber/conf.yaml` to configure LLM backends, ASR/TTS providers, and Live2D models.
 
 ## Using individual modules in another flake
 
 Every module is re-exported under `flakeModules.*`:
 
 ```nix
-inputs.streaming-setup.flakeModules.obs      # OBS only
-inputs.streaming-setup.flakeModules.reaper   # Reaper only
-inputs.streaming-setup.flakeModules.yt-dl    # yt-dl only
+inputs.streaming-setup.flakeModules.obs             # OBS only
+inputs.streaming-setup.flakeModules.reaper          # Reaper only
+inputs.streaming-setup.flakeModules.yt-dl           # yt-dl only
 inputs.streaming-setup.flakeModules.multimedia-tools  # multimedia utilities
-inputs.streaming-setup.flakeModules.default  # everything
+inputs.streaming-setup.flakeModules.open-llm-vtuber # Open LLM VTuber package + service
+inputs.streaming-setup.flakeModules.default         # everything
 ```
 
 ## Updating inputs

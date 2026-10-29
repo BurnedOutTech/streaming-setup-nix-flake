@@ -6,10 +6,18 @@
           wlrobs                      # Wayland screen capture
           obs-pipewire-audio-capture  # Audio from PipeWire
           # obs-backgroundremoval       # ML background removal
-          obs-source-switcher         # Scene automation
+          (obs-source-switcher.overrideAttrs (_: {
+            version = "0.4.4";
+            src = pkgs.fetchFromGitHub {
+              owner = "exeldro";
+              repo = "obs-source-switcher";
+              rev = "0.4.4";
+              hash = "sha256-XLeDFyb75gipHakYPMa3hRjlSF/20Tq+Dks3qw9c6iA=";
+            };
+          }))                         # Scene automation
 
           input-overlay
-          obs-advanced-masks
+          # obs-advanced-masks
           #obs-vertical-canvas
           obs-gstreamer                                                                     
           obs-vnc
