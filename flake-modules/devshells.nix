@@ -7,6 +7,22 @@
   # config: merged configuration from all modules (read-only)
   # lib: nixpkgs library utilities
   perSystem = { pkgs, self', ... }: {
+    apps.cache-build = {
+      type = "app";
+      program = "${pkgs.writeShellApplication {
+        name = "cache-build";
+        runtimeInputs = [ pkgs.cachix pkgs.nix ];
+        text = ''
+          if [ "$#" -eq 0 ]; then
+            echo "Usage: cache-build <Nix installable> [nix build options...]" >&2
+            exit 64
+          fi
+
+          exec cachix watch-exec burnedouttech nix build "$@"
+        '';
+      }}/bin/cache-build";
+    };
+
     devShells = {
       default = pkgs.mkShell {
         name = "streaming-env";
@@ -34,4 +50,3 @@
     };
   };
 }
-
