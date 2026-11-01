@@ -1,6 +1,13 @@
 {
   description = "OBS + Reaper streaming setup using flake.parts";
 
+  nixConfig = {
+    extra-substituters = [ "https://burnedouttech.cachix.org" ];
+    extra-trusted-public-keys = [
+      "burnedouttech.cachix.org-1:dG6U3EJWPL97mnlTSQOKDGrEwcYNUi8MOia+rKwM+dY="
+    ];
+  };
+
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
