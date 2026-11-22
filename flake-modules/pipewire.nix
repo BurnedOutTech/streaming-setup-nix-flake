@@ -25,6 +25,12 @@ in
           "default.clock.max-quantum" = 2048;
         };
       };
+      security.rtkit.enable = true;
+
+      # With socketActivation disabled nixpkgs leaves these units without a
+      # wantedBy target, so nothing starts them at login.
+      systemd.user.services.pipewire.wantedBy = [ "default.target" ];
+      systemd.user.services.pipewire-pulse.wantedBy = [ "default.target" ];
       systemd.user.services.wireplumber.wantedBy = [ "default.target" ];
 
       environment.systemPackages = with pkgs; [
